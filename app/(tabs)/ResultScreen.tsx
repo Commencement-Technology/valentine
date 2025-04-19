@@ -77,28 +77,57 @@ const CombinedFlamesScreen = () => {
   const [eliminatedIndexes, setEliminatedIndexes] = useState<number[]>([]);
   const [result, setResult] = useState("");
   const flames = ["F", "L", "A", "M", "E", "S"];
-
-  const lottieRef = useRef<LottieView>(null);
+  const [name1Error, setName1Error] = useState("");
+  const [name2Error, setName2Error] = useState("");
+  const nameRegex = /^[A-Za-z]{3,15}$/;
 
   const handleSubmit = () => {
-    if (name1.trim() && name2.trim()) {
-      setShowResult(true);
-      setResult("");
-      setEliminatedIndexes([]);
-      calculateFlamesWithCrosses(name1, name2, (eliminated, finalResult) => {
-        setEliminatedIndexes(eliminated);
-        if (finalResult) setResult(finalResult);
-      });
-    }
-  };
+    if(name1&&!name2){
+      setName2Error(
+        "Give Your Crush name."
+      );
+    }else if(!name1&&name2){
+      setName1Error(" Give your name.");
+    }else{
+      let valid = true;
 
-  const handleTryAgain = () => {
+    if (!nameRegex.test(name1)) {
+      setName1Error("Plaese give valid name.");
+      valid = false;
+    } else {
+      setName1Error("");
+    }
+
+    if (!nameRegex.test(name2)) {
+      setName2Error(
+        "Plaese give valid name."
+      );
+      valid = false;
+    } else {
+      setName2Error("");
+    }
+
+    if (!valid) return;
+
+    setShowResult(true);
     setResult("");
     setEliminatedIndexes([]);
     calculateFlamesWithCrosses(name1, name2, (eliminated, finalResult) => {
       setEliminatedIndexes(eliminated);
       if (finalResult) setResult(finalResult);
     });
+    }
+    
+  };
+
+  const handleTryAgain = () => {
+    setResult("");
+    setName1("");
+    setName2("");
+    setName1Error("");
+    setName2Error("");
+    setShowResult(false);
+    setEliminatedIndexes([]);
   };
 
   const handleBack = () => {
@@ -106,6 +135,8 @@ const CombinedFlamesScreen = () => {
     setName1("");
     setName2("");
     setResult("");
+    setName1Error("");
+    setName2Error("");
     setEliminatedIndexes([]);
     router.back();
   };
@@ -126,23 +157,34 @@ const CombinedFlamesScreen = () => {
             style={styles.input}
             placeholder="Enter your name"
             value={name1}
-            onChangeText={setName1}
+            onChangeText={(text) => {
+              setName1(text);
+              if (name1Error) setName1Error(""); // clear error while typing
+            }}
           />
+          {name1Error ? (
+            <Text style={styles.errorText}>{name1Error}</Text>
+          ) : null}
 
           <TextInput
             style={styles.input}
             placeholder="Enter crush's name"
             value={name2}
-            onChangeText={setName2}
+            onChangeText={(text) => {
+              setName2(text);
+              if (name2Error) setName2Error(""); // clear error while typing
+            }}
           />
+          {name2Error ? (
+            <Text style={styles.errorText}>{name2Error}</Text>
+          ) : null}
 
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Check 🔮</Text>
           </TouchableOpacity>
         </>
       ) : (
-        <View >
-            
+        <View>
           <Text style={styles.title}>FLAMES Match</Text>
           <Text style={styles.names}>
             {name1} ❤️ {name2}
@@ -185,7 +227,7 @@ const CombinedFlamesScreen = () => {
             onPress={handleTryAgain}
             disabled={!result}
           >
-            <Text style={styles.buttonText}>Try Again</Text>
+            <Text style={styles.buttonText}>Try with New Names</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -202,6 +244,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: "#fff",
   },
+  errorText: {
+    color: "red",
+    marginBottom: 8,
+    marginLeft: 4,
+    fontSize: 14,
+  },
+  
   title: {
     fontSize: 32,
     textAlign: "center",

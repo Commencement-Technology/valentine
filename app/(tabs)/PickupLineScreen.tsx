@@ -20,6 +20,7 @@ const PickupLineScreen = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const router = useRouter();
   const [favorites, setFavorites] = useState<any[]>([]);
+  const [save, setsave] = useState(false);
   useFocusEffect(
     useCallback(() => {
       logFavorites();
@@ -66,6 +67,7 @@ const PickupLineScreen = () => {
 
   const handleSaveFavorite = async () => {
     try {
+      setsave(true);
       const existingFavorites = await AsyncStorage.getItem("pickupFavorites");
       const parsedFavorites = existingFavorites
         ? JSON.parse(existingFavorites)
@@ -83,13 +85,13 @@ const PickupLineScreen = () => {
     }
   };
 
-  const handleback =async () => {
+  const handleback = async () => {
     setPickupLine("");
     setCopied(false);
     fadeAnim.setValue(0); // Reset animation
     setPickupLine("");
     router.back();
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -135,14 +137,14 @@ const PickupLineScreen = () => {
       <TouchableOpacity style={styles.button} onPress={fetchPickupLine}>
         <Text style={styles.buttonText}>Get Pickup Line 💌</Text>
       </TouchableOpacity>
-      {favorites.length > 0 && (
+      {favorites.length > 0 || save ? (
         <TouchableOpacity
           style={[styles.button, { marginTop: 20 }]}
           onPress={() => router.push("/Favourites")}
         >
           <Text style={styles.buttonText}>Show the Favouries💌</Text>
         </TouchableOpacity>
-      )}
+      ) : null}
 
       <TouchableOpacity onPress={handleback} style={styles.backButton}>
         <Text style={styles.backButtonText}>🔙 Back</Text>
