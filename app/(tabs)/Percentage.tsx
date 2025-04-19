@@ -28,25 +28,62 @@ const LoveCheckerScreen = () => {
   const [showResult, setShowResult] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const [animationSource, setAnimationSource] = useState(animation84to100);
+  const [name1Error, setName1Error] = useState("");
+  const [name2Error, setName2Error] = useState("");
+  const nameRegex = /^[A-Za-z]{3,15}$/;
 
   const handleSubmit = () => {
-    if (name1.trim() && name2.trim()) {
-      setLoading(true);
-      setShowResult(true);
-      const percent = calculateLovePercentage(name1, name2);
-      setPercentage(percent);
+    // Trim inputs to catch empty whitespace entries
+    const trimmedName1 = name1.trim();
+    const trimmedName2 = name2.trim();
 
-      if (percent <= 16) setAnimationSource(animation0to16 as any);
-      else if (percent <= 33) setAnimationSource(animation17to33 as any);
-      else if (percent <= 50) setAnimationSource(animation34to50 as any);
-      else if (percent <= 66) setAnimationSource(animation51to66 as any);
-      else if (percent <= 83) setAnimationSource(animation67to83 as any);
-      else setAnimationSource(animation84to100 as any);
+    // Reset previous errors
+    setName1Error("");
+    setName2Error("");
 
-      setTimeout(() => {
-        setLoading(false);
-      }, 3000);
+    // Early validation: check if one name is missing
+    if (trimmedName1 && !trimmedName2) {
+      setName2Error("Give your crush's name.");
+      return;
     }
+
+    if (!trimmedName1 && trimmedName2) {
+      setName1Error("Give your name.");
+      return;
+    }
+
+    // Validate both fields
+    let valid = true;
+
+    if (!nameRegex.test(trimmedName1)) {
+      setName1Error("Please give a valid name.");
+      valid = false;
+    }
+
+    if (!nameRegex.test(trimmedName2)) {
+      setName2Error("Please give a valid name.");
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    // Proceed with logic
+    setLoading(true);
+    setShowResult(true);
+    const percent = calculateLovePercentage(trimmedName1, trimmedName2);
+    setPercentage(percent);
+
+    // Set appropriate animation based on percentage
+    if (percent <= 16) setAnimationSource(animation0to16 as any);
+    else if (percent <= 33) setAnimationSource(animation17to33 as any);
+    else if (percent <= 50) setAnimationSource(animation34to50 as any);
+    else if (percent <= 66) setAnimationSource(animation51to66 as any);
+    else if (percent <= 83) setAnimationSource(animation67to83 as any);
+    else setAnimationSource(animation84to100 as any);
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 3000);
   };
 
   const handleReset = () => {
@@ -99,16 +136,21 @@ const LoveCheckerScreen = () => {
       <View style={styles.container}>
         {loading ? (
           <>
-            <LottieView
+          <View style={{justifyContent:'center',alignItems:'center'}}>
+          <LottieView
               source={loadingAnim}
               autoPlay
               loop
               style={{ width: 200, height: 200 }}
             />
             <Text style={styles.loadingText}>Calculating your Love... 🔮</Text>
+          </View>
+           
           </>
         ) : (
           <>
+          
+          <View style={{justifyContent:'center',alignItems:'center'}}>
             <Text style={styles.title}>💘 Love Compatibility 💘</Text>
             <Text style={styles.names}>
               {name1} ❤️ {name2}
@@ -120,10 +162,12 @@ const LoveCheckerScreen = () => {
               loop
               style={styles.animation}
             />
-            <TouchableOpacity style={styles.backButton} onPress={handleReset}>
-              <Text style={styles.backButtonText}>🔙 Back</Text>
-            </TouchableOpacity>
-          </>
+           
+          </View>
+           <TouchableOpacity style={styles.backButton} onPress={handleReset}>
+           <Text style={styles.backButtonText}>🔙 Back</Text>
+         </TouchableOpacity>
+         </>
         )}
       </View>
     );
@@ -139,14 +183,23 @@ const LoveCheckerScreen = () => {
         style={styles.input}
         placeholder="Enter your name"
         value={name1}
-        onChangeText={setName1}
+        onChangeText={(text) => {
+          setName1(text);
+          if (name1Error) setName1Error(""); // clear error while typing
+        }}
       />
+      {name1Error ? <Text style={styles.errorText}>{name1Error}</Text> : null}
+
       <TextInput
         style={styles.input}
         placeholder="Enter crush's name"
         value={name2}
-        onChangeText={setName2}
+        onChangeText={(text) => {
+          setName2(text);
+          if (name2Error) setName2Error(""); // clear error while typing
+        }}
       />
+      {name2Error ? <Text style={styles.errorText}>{name2Error}</Text> : null}
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Let's Calculate💘</Text>
       </TouchableOpacity>
@@ -164,8 +217,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: 20,
-    alignItems: "center",
+    // alignItems: "center",
     backgroundColor: "#fff",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 8,
+    marginLeft: 4,
+    fontSize: 14,
   },
   title: {
     fontSize: 26,

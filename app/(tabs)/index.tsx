@@ -10,57 +10,51 @@ import {
   ScrollView,
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Ionicons, FontAwesome5, MaterialIcons, Entypo } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5, MaterialIcons, Entypo, Fontisto, MaterialCommunityIcons, FontAwesome6 } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 const buttonSize = (width - 60) / 2; // Two columns with 20px margin
 
 const HomeScreen = () => {
   const router = useRouter();
-  const [name1, setName1] = useState("");
-  const [name2, setName2] = useState("");
-
-  useFocusEffect(
-    React.useCallback(() => {
-      setName1("");
-      setName2("");
-    }, [])
-  );
-
+ 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>Dashboard</Text>
+      <Text style={styles.title}>Dashboard</Text>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        
         
         <View style={styles.grid}>
           <DashboardButton
             icon={<FontAwesome5 name="heart" size={30} color="#fff" />}
             label="Love Match"
-            onPress={() =>
-              router.push({ pathname: "/(tabs)/ResultScreen", params: { name1, name2 } })
-            }
-          />
+            onPress={() => router.push("/(tabs)/ResultScreen")}
+            />
           <DashboardButton
             icon={<Ionicons name="stats-chart" size={30} color="#fff" />}
             label="Love %"
-            onPress={() =>
-              router.push({ pathname: "/(tabs)/Percentage", params: { name1, name2 } })
-            }
+            onPress={() => router.push("/(tabs)/Percentage")}
           />
           <DashboardButton
             icon={<MaterialIcons name="emoji-emotions" size={30} color="#fff" />}
             label="Pickup Line"
             onPress={() => router.push("/(tabs)/PickupLineScreen")}
           />
+          
+          {/* <DashboardButton
+            icon={<MaterialCommunityIcons name="zodiac-cancer" size={30} color="#fff" />}
+            label=" Zodiac Love Match"
+            onPress={() => router.push("/(tabs)/StarMatchScreen")}
+          />
           <DashboardButton
             icon={<FontAwesome5 name="user-clock" size={30} color="#fff" />}
             label="Age Guesser"
             onPress={() => router.push("/(tabs)/AgePredictionScreen")}
           />
-          {/* <DashboardButton
+          <DashboardButton
             icon={<Entypo name="cycle" size={30} color="#fff" />}
             label="Coin Toss"
             onPress={() => router.push("/(tabs)/CoinTossScreen")}
@@ -70,8 +64,29 @@ const HomeScreen = () => {
             label="Truth or Dare"
             onPress={() => router.push("/(tabs)/TruthOrDare")}
           /> */}
+           <DashboardButton
+            icon={<FontAwesome5 name="file-contract"  size={30} color="#fff" /> }
+            label="Love Agreement"
+            onPress={() => router.push("/(tabs)/LoveAgreementScreen")}
+          />
+          <DashboardButton
+            icon={<Fontisto name="date" size={30} color="#fff" /> }
+            label="Date Generator"
+            onPress={() => router.push("/(tabs)/DateGenerator")}
+          />
+          <DashboardButton
+            icon={<FontAwesome6 name="face-smile-wink" size={30} color="#fff" /> }
+            label="Smile Giver"
+            onPress={() => router.push("/(tabs)/SmileGiver")}
+          />
         </View>
-      </ScrollView>
+        
+      </ScrollView><View style={styles.btncontainer}>
+      <TouchableOpacity style={styles.button} onPress={() => router.push("/FeedbackScreen")}>
+      <MaterialIcons name="feedback" size={24} color="#fff" />
+        <Text style={styles.text}>Feedback</Text>
+      </TouchableOpacity>
+    </View>
     </KeyboardAvoidingView>
   );
 };
@@ -86,6 +101,31 @@ const DashboardButton = ({ icon, label, onPress }: any) => (
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+  btncontainer: {
+    alignItems: 'center',
+    marginTop: 20
+  },
+  button: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    flexDirection: 'row',
+    backgroundColor: 'gray',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4
+  },
+  text: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 10
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -99,6 +139,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "bold",
     marginBottom: 20,
+    marginTop:20
   },
   grid: {
     flexDirection: "row",

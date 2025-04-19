@@ -81,6 +81,38 @@ export default function TabLayout() {
           tabBarStyle: { display: 'none' }, // Hide the tab bar on this screen
         }}
       />
+      <Tabs.Screen
+        name="LoveAgreementScreen"
+        options={{
+          title: 'Result',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarStyle: { display: 'none' }, // Hide the tab bar on this screen
+        }}
+      />
+      <Tabs.Screen
+        name="StarMatchScreen"
+        options={{
+          title: 'Result',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarStyle: { display: 'none' }, // Hide the tab bar on this screen
+        }}
+      />
+       <Tabs.Screen
+        name="DateGenerator"
+        options={{
+          title: 'Result',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarStyle: { display: 'none' }, // Hide the tab bar on this screen
+        }}
+      />
+      <Tabs.Screen
+        name="SmileGiver"
+        options={{
+          title: 'Result',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarStyle: { display: 'none' }, // Hide the tab bar on this screen
+        }}
+      />
     </Tabs>
   );
 }
