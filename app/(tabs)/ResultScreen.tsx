@@ -1,18 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  Dimensions,
 } from "react-native";
 import LottieView from "lottie-react-native";
 import { router } from "expo-router";
-
-const { width, height } = Dimensions.get("window");
+import { AntDesign } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
 
 const animationSources: Record<string, any> = {
   love: require("@/assets/animation/love.json"),
@@ -79,45 +77,40 @@ const CombinedFlamesScreen = () => {
   const flames = ["F", "L", "A", "M", "E", "S"];
   const [name1Error, setName1Error] = useState("");
   const [name2Error, setName2Error] = useState("");
-  const nameRegex = /^[A-Za-z]{3,15}$/;
+  const nameRegex = /^[A-Za-z\s'-]{2,50}$/;
 
   const handleSubmit = () => {
-    if(name1&&!name2){
-      setName2Error(
-        "Give Your Crush name."
-      );
-    }else if(!name1&&name2){
+    if (name1 && !name2) {
+      setName2Error("Give Your Crush name.");
+    } else if (!name1 && name2) {
       setName1Error(" Give your name.");
-    }else{
+    } else {
       let valid = true;
 
-    if (!nameRegex.test(name1)) {
-      setName1Error("Plaese give valid name.");
-      valid = false;
-    } else {
-      setName1Error("");
-    }
+      if (!nameRegex.test(name1)) {
+        setName1Error("Plaese give valid name.");
+        valid = false;
+      } else {
+        setName1Error("");
+      }
 
-    if (!nameRegex.test(name2)) {
-      setName2Error(
-        "Plaese give valid name."
-      );
-      valid = false;
-    } else {
-      setName2Error("");
-    }
+      if (!nameRegex.test(name2)) {
+        setName2Error("Plaese give valid name.");
+        valid = false;
+      } else {
+        setName2Error("");
+      }
 
-    if (!valid) return;
+      if (!valid) return;
 
-    setShowResult(true);
-    setResult("");
-    setEliminatedIndexes([]);
-    calculateFlamesWithCrosses(name1, name2, (eliminated, finalResult) => {
-      setEliminatedIndexes(eliminated);
-      if (finalResult) setResult(finalResult);
-    });
+      setShowResult(true);
+      setResult("");
+      setEliminatedIndexes([]);
+      calculateFlamesWithCrosses(name1, name2, (eliminated, finalResult) => {
+        setEliminatedIndexes(eliminated);
+        if (finalResult) setResult(finalResult);
+      });
     }
-    
   };
 
   const handleTryAgain = () => {
@@ -142,53 +135,99 @@ const CombinedFlamesScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <LinearGradient
+      colors={["#CB8FC2", "#B8A4E0"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
       style={styles.container}
     >
       <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Text style={styles.backButtonText}>🔙 Back</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <AntDesign name="arrowleft" size={24} color="white" />
+          <Text style={styles.backButtonText}>FLAMES</Text>
+        </View>
       </TouchableOpacity>
-      {!showResult ? (
-        <>
-          <Text style={styles.title}>🔥 FLAMES 🔥</Text>
+      {!showResult && (
+        <Image
+          style={styles.bottomImage}
+          source={require("../../assets/images/flames.svg")}
+        />
+      )}
 
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your name"
-            value={name1}
-            onChangeText={(text) => {
-              setName1(text);
-              if (name1Error) setName1Error(""); // clear error while typing
-            }}
-          />
+      {!showResult ? (
+        <View style={{ width: "100%", alignItems: "center" }}>
+          <View style={styles.progressInputContainer}>
+            <Image
+              style={styles.icon}
+              source={require("../../assets/icons/ic_input.svg")}
+            />
+
+            <View style={styles.progressBarInputBackground}>
+              <TextInput
+                style={styles.progressInput}
+                placeholder="Your Name"
+                placeholderTextColor="#999"
+                value={name1}
+                onChangeText={(text) => {
+                  setName1(text);
+                  if (name1Error) setName1Error(""); // clear error while typing
+                }}
+              />
+            </View>
+          </View>
+
           {name1Error ? (
             <Text style={styles.errorText}>{name1Error}</Text>
           ) : null}
-
-          <TextInput
-            style={styles.input}
-            placeholder="Enter crush's name"
-            value={name2}
-            onChangeText={(text) => {
-              setName2(text);
-              if (name2Error) setName2Error(""); // clear error while typing
-            }}
+          <Image
+            source={require("../../assets/icons/ic_heart.svg")} // your custom SVG
+            style={styles.loveIcon}
           />
+          <View style={styles.progressInputContainer}>
+            <Image
+              style={styles.icon}
+              source={require("../../assets/icons/ic_input.svg")}
+            />
+
+            <View style={styles.progressBarInputBackground}>
+              <TextInput
+                style={styles.progressInput}
+                placeholder="Your Crush Name"
+                placeholderTextColor="#999"
+                value={name2}
+                onChangeText={(text) => {
+                  setName2(text);
+                  if (name1Error) setName2Error(""); // clear error while typing
+                }}
+              />
+            </View>
+          </View>
           {name2Error ? (
             <Text style={styles.errorText}>{name2Error}</Text>
           ) : null}
-
-          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Check 🔮</Text>
+          <TouchableOpacity onPress={handleSubmit}>
+            <LinearGradient
+              colors={["#F16886", "#FFCFBA"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.askButton}
+            >
+              <Text style={styles.ButtonText}>Submit</Text>
+            </LinearGradient>
           </TouchableOpacity>
-        </>
+        </View>
       ) : (
-        <View>
-          <Text style={styles.title}>FLAMES Match</Text>
-          <Text style={styles.names}>
-            {name1} ❤️ {name2}
-          </Text>
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <View style={styles.namesWrapper}>
+            <Text style={styles.namesText}>{name1}</Text>
+
+            <Image
+              source={require("../../assets/icons/ic_heart.svg")} // your custom SVG
+              style={styles.loveIcon}
+            />
+
+            <Text style={styles.namesText}>{name2}</Text>
+          </View>
 
           <View style={styles.flamesRow}>
             {flames.map((char, idx) => (
@@ -202,7 +241,7 @@ const CombinedFlamesScreen = () => {
 
           {result ? (
             <View style={{ alignItems: "center" }}>
-              <Text style={styles.resultText}>🔥 You both are {result} 🔥</Text>
+              <Text style={styles.resultText}>You both are {result}</Text>
               <LottieView
                 source={animationSources[result.toLowerCase()]}
                 autoPlay
@@ -221,17 +260,19 @@ const CombinedFlamesScreen = () => {
               />
             </View>
           )}
-
-          <TouchableOpacity
-            style={[styles.button, !result && styles.disabledButton]}
-            onPress={handleTryAgain}
-            disabled={!result}
-          >
-            <Text style={styles.buttonText}>Try with New Names</Text>
+          <TouchableOpacity onPress={handleTryAgain}>
+            <LinearGradient
+              colors={["#F16886", "#FFCFBA"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.askButton, { marginTop: 10 }]}
+            >
+              <Text style={styles.ButtonText}>Try with New Names</Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       )}
-    </KeyboardAvoidingView>
+    </LinearGradient>
   );
 };
 
@@ -244,19 +285,67 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: "#fff",
   },
+  icon: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+    marginRight: -30, // space between icon and bar
+    zIndex: 2,
+  },
+  progressInput: {
+    width: "100%",
+    height: "100%",
+    color: "#000",
+    paddingLeft: 30,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  progressInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+    paddingHorizontal: 16,
+    width: "100%",
+  },
+  loveIcon: {
+    width: 32,
+    height: 32,
+    resizeMode: "contain",
+  },
+  progressBarInputBackground: {
+    flex: 1,
+    height: 50,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    borderWidth: 3,
+    borderColor: "#F16886",
+  },
+  namesWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 12,
+  },
+  bottomImage: {
+    width: 250,
+    height: 200,
+    alignSelf: "center",
+    marginTop: 20,
+  },
+
+  namesText: {
+    fontSize: 20,
+    fontFamily: "k2dBold",
+    fontWeight: "600",
+    color: "white",
+    marginHorizontal: 6,
+  },
   errorText: {
     color: "red",
-    marginBottom: 8,
-    marginLeft: 4,
-    fontSize: 14,
-  },
-  
-  title: {
-    fontSize: 32,
-    textAlign: "center",
-    marginBottom: 30,
-    fontWeight: "bold",
-    color: "#FF7755",
+    fontFamily: "k2dLight",
+    fontSize: 12,
+    lineHeight:12,
   },
   input: {
     borderWidth: 1,
@@ -266,30 +355,35 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     fontSize: 18,
   },
-  button: {
-    backgroundColor: "#FF7755",
-    padding: 15,
-    borderRadius: 12,
-    marginTop: 20,
+  askButton: {
+    width: 248,
+    padding: 10,
+    backgroundColor: "#3498db",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 30,
     alignItems: "center",
+  },
+  ButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   disabledButton: {
     backgroundColor: "#ccc",
   },
-  buttonText: {
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "bold",
-  },
+
   backButton: {
     position: "absolute",
-    top: 50,
+    top: 30,
     left: 20,
   },
   backButtonText: {
-    fontSize: 16,
-    color: "#7E8EFF",
-    fontWeight: "600",
+    marginLeft: 10,
+    color: "#fff",
+    fontFamily: "k2dMedium",
+    fontSize: 20,
+    textAlign: "center",
   },
   names: {
     fontSize: 20,
@@ -303,7 +397,8 @@ const styles = StyleSheet.create({
   },
   letterBox: {
     borderWidth: 1,
-    borderColor: "#FF7755",
+    borderColor: "#F16886",
+    backgroundColor: "#fff",
     borderRadius: 8,
     margin: 5,
     padding: 10,
@@ -311,12 +406,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   letterText: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 17,
+    fontFamily: "K2dBold",
   },
   resultText: {
     fontSize: 22,
-    fontWeight: "bold",
+    fontFamily: "k2dBold",
     textAlign: "center",
     marginVertical: 20,
   },
