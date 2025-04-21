@@ -13,11 +13,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { WebView } from "react-native-webview";
-import { Image } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import loadingAnim from "../../assets/animation/loading.json";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
 
 export default function App() {
   const [nameOne, setNameOne] = useState("");
@@ -29,7 +30,7 @@ export default function App() {
   const [showPreview, setShowPreview] = useState(false);
   const [name1Error, setName1Error] = useState("");
   const [name2Error, setName2Error] = useState("");
-  const nameRegex = /^[A-Za-z]{3,15}$/;
+  const nameRegex = /^[A-Za-z\s'-]{2,50}$/;
   const router = useRouter();
   const romanticVow = `
    💖 I promise to always be honest, loyal, and loving to you.<br />
@@ -153,48 +154,88 @@ export default function App() {
     }, 2000);
   };
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={handleback}>
-        <Text style={styles.backButtonText}>🔙 Back</Text>
-      </TouchableOpacity>
-      <Text style={[styles.title, { marginTop: 35 }]}>💖 Love Contract 💖</Text>
+    <LinearGradient
+      colors={["#8CC19E", "#71B8E8"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.container}
+    >
+      <View style={{ width: "100%", backgroundColor: "8CC19E" }}>
+        <TouchableOpacity style={styles.backButton} onPress={handleback}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <AntDesign name="arrowleft" size={24} color="white" />
+            <Text style={styles.backButtonText}>Love Contract</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
 
-      <View style={styles.card}>
-        <Text style={styles.label}>Your Name </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your name"
-          value={nameOne}
-          onChangeText={(text) => {
-            setNameOne(text);
-            if (name1Error) setName1Error(""); // clear error while typing
-          }}
+      <ScrollView
+        style={{ width: "100%" ,minHeight:'80%'}}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          alignItems: "center",
+          flexGrow: 1,
+          paddingBottom: 50,
+        }}
+      >
+        <Image
+          style={styles.bottomImage}
+          source={require("../../assets/images/lovecontract.svg")}
         />
-        {name1Error ? <Text style={styles.errorText}>{name1Error}</Text> : null}
-        <Text style={styles.label}>Crush Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter crush's name"
-          value={nameTwo}
-          onChangeText={(text) => {
-            setNameTwo(text);
-            if (name2Error) setName2Error(""); // clear error while typing
-          }}
-        />
-        {name2Error ? <Text style={styles.errorText}>{name2Error}</Text> : null}
-
-        <Text style={styles.label}>Date</Text>
-        <TouchableOpacity
-          style={[styles.input, styles.dateInput]}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Ionicons
-            name="calendar-outline"
-            size={20}
-            color="#666"
-            style={{ marginRight: 8 }}
+        <View style={styles.progressInputContainer}>
+          <Image
+            style={styles.icon}
+            source={require("../../assets/icons/ic_input.svg")}
           />
-          <Text style={{ color: "#333" }}>{date}</Text>
+
+          <View style={styles.progressBarInputBackground}>
+            <TextInput
+              style={styles.progressInput}
+              placeholder="your name"
+              placeholderTextColor="#999"
+              value={nameOne}
+              onChangeText={(text) => {
+                setNameOne(text);
+                if (name1Error) setName1Error(""); // clear error while typing
+              }}
+            />
+          </View>
+        </View>
+
+        {name1Error ? <Text style={styles.errorText}>{name1Error}</Text> : null}
+
+        <View style={styles.progressInputContainer}>
+          <Image
+            style={styles.icon}
+            source={require("../../assets/icons/ic_input.svg")}
+          />
+
+          <View style={styles.progressBarInputBackground}>
+            <TextInput
+              style={styles.progressInput}
+              placeholder="Your Crush Name"
+              placeholderTextColor="#999"
+              value={nameTwo}
+              onChangeText={(text) => {
+                setNameTwo(text);
+                if (name2Error) setName2Error(""); // clear error while typing
+              }}
+            />
+          </View>
+        </View>
+
+        {name2Error ? <Text style={styles.errorText}>{name2Error}</Text> : null}
+        <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+          <View style={styles.progressContainer}>
+            <Image
+              style={styles.icon}
+              source={require("../../assets/icons/ic_input.svg")}
+            />
+
+            <View style={styles.progressBarBackground}>
+              <Text style={styles.percentageText}>{`${date}`}</Text>
+            </View>
+          </View>
         </TouchableOpacity>
 
         {showDatePicker && (
@@ -217,72 +258,151 @@ export default function App() {
           <Text style={styles.switchLabel}>Funny Mode?</Text>
         </View>
         {nameOne && nameTwo && (
-          <TouchableOpacity
-            style={styles.generateButton}
-            onPress={handleGenerate}
-          >
-            <Text style={styles.generateButtonText}>⚙️ Make Contract</Text>
+          <TouchableOpacity onPress={handleGenerate}>
+            <LinearGradient
+              colors={["#F16886", "#FFCFBA"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.askButton}
+            >
+              <Text style={styles.ButtonText}>Make Contract</Text>
+            </LinearGradient>
           </TouchableOpacity>
         )}
-      </View>
-      {isGenerating && (
-        <>
-          <LottieView
-            source={loadingAnim}
-            autoPlay
-            loop
-            style={{ width: 150, height: 150 }}
-          />
-          <Text style={styles.generateButtonText}>
-            Contract was written....
-          </Text>
-        </>
-      )}
-      {nameOne && nameTwo && !isGenerating && showPreview && (
-        <View style={[styles.card, { marginTop: 20 }]}>
-          {showPreview && (
-            <>
-              <Text style={styles.previewLabel}>📄 Preview:</Text>
-              <View style={styles.webviewContainer}>
-                <WebView
-                  originWhitelist={["*"]}
-                  source={{ html: generateHtmlContent() }}
-                />
-              </View>
-            </>
-          )}
-          <TouchableOpacity style={styles.button} onPress={printToFile}>
-            <Text style={styles.buttonText}>
-              💌 Share This with Your Love 💖
+
+        {isGenerating && (
+          <>
+            <LottieView
+              source={loadingAnim}
+              autoPlay
+              loop
+              style={{ width: 150, height: 150 }}
+            />
+            <Text style={styles.generateButtonText}>
+              Contract was written....
             </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </ScrollView>
+          </>
+        )}
+        {nameOne && nameTwo && !isGenerating && showPreview && (
+          <View style={[styles.card, { marginTop: 20 }]}>
+            {showPreview && (
+              <>
+                <View style={styles.webviewContainer}>
+                  <WebView
+                    originWhitelist={["*"]}
+                    source={{ html: generateHtmlContent() }}
+                  />
+                </View>
+              </>
+            )}
+
+            <TouchableOpacity onPress={printToFile}>
+              <LinearGradient
+                colors={["#F16886", "#FFCFBA"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[styles.askButton,]}
+              >
+                <Text style={[styles.ButtonText]}>
+                  Share This with Your Love 
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 40,
-    minHeight: "100%",
-    paddingHorizontal: 24,
-    backgroundColor: "#ffeaf1",
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  bottomImage: {
+    width: 250,
+    height: 250,
+    alignSelf: "center",
+    marginTop: 45,
+    borderRadius: 30,
+  },
+  progressInput: {
+    width: "100%",
+    height: "100%",
+    color: "#000",
+    paddingLeft: 30,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  percentageText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
+    paddingLeft: 30,
+    marginTop: 4,
+  },
+  progressBarBackground: {
+    width: "80%",
+    height: 40,
+    backgroundColor: "#fff",
+    borderRadius: 30,
+    overflow: "hidden",
+    marginVertical: 20,
+    borderWidth: 3,
+    borderColor: "#F16886",
+  },
+  askButton: {
+    width: 300,
+    padding: 10,
+    backgroundColor: "#3498db",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    alignItems: "center",
+  },
+  ButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  progressContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "80%",
+  },
+  progressInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    paddingHorizontal: 16,
+    width: "100%",
+  },
+  icon: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+    marginRight: -30, // space between icon and bar
+    zIndex: 2,
+  },
+  progressBarInputBackground: {
+    flex: 1,
+    height: 50,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    borderWidth: 3,
+    borderColor: "#F16886",
   },
   errorText: {
     color: "red",
-    marginBottom: 8,
-    marginLeft: 4,
-    fontSize: 14,
+    fontFamily: "k2dLight",
+    fontSize: 12,
+    lineHeight:12,
   },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#d63384",
-    marginBottom: 20,
-    textAlign: "center",
-  },
+
   card: {
     width: "100%",
     backgroundColor: "#fff",
@@ -293,55 +413,20 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 6,
   },
-  label: {
-    fontWeight: "600",
-    marginBottom: 8,
-    marginTop: 16,
-    fontSize: 16,
-    color: "#444",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 12,
-    borderRadius: 10,
-    backgroundColor: "#fff",
-  },
-  dateInput: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+  
+
   switchRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 20,
-    marginBottom: 10,
   },
   switchLabel: {
     marginLeft: 12,
     fontSize: 16,
+    fontFamily: "k2dMedium",
     color: "#444",
   },
-  button: {
-    backgroundColor: "#ff66a3",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: 20,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 14,
-  },
-  previewLabel: {
-    fontWeight: "bold",
-    marginTop: 28,
-    marginBottom: 12,
-    fontSize: 18,
-    color: "#222",
-  },
+
+
   webviewContainer: {
     height: 389,
     width: "98%",
@@ -350,29 +435,21 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
   },
-  generateButton: {
-    backgroundColor: "#ffd6e8",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: "#ff66a3",
-  },
+ 
   generateButtonText: {
     color: "#d63384",
-    fontWeight: "600",
+    fontFamily:'k2dBold',
     fontSize: 16,
   },
   backButton: {
-    position: "absolute",
-    top: 50,
-    left: 20,
+    marginTop: 20,
+    marginBottom: 10,
   },
   backButtonText: {
-    color: "#444",
-    fontSize: 16,
+    marginLeft: 10,
+    color: "#fff",
+    fontFamily: "k2dMedium",
+    fontSize: 20,
     textAlign: "center",
   },
 });

@@ -4,44 +4,46 @@ import {
   Text,
   TouchableOpacity,
   Platform,
-  ScrollView,
   StyleSheet,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { supabase } from "../../supabaseClient";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
+import loadingAnim from "../../assets/animation/loading.json";
+import LottieView from "lottie-react-native";
 
 export default function DateGenerator() {
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
-  const [mood, setMood] = useState("");
+  const [mood, setMood] = useState("romantic");
   const [idea, setIdea] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false); // For toggling between Generate and Try Again
+  const [isGenerating, setIsGenerating] = useState(false); 
   const router = useRouter();
   const moods = ["romantic", "chaotic", "funny"];
   const fetchIdea = async () => {
     if (!mood) return;
-  
+
     setLoading(true); // Start loading spinner
-  
-    // Get a random offset within the total number of available ideas for the selected mood
+
     const { count } = await supabase
       .from("date_ideas")
       .select("idea", { count: "exact" })
       .eq("mood", mood);
-  
+
     if (count) {
       const randomOffset = Math.floor(Math.random() * count); // Random offset
-  
+
       const { data, error } = await supabase
         .from("date_ideas")
         .select("idea")
         .eq("mood", mood)
         .range(randomOffset, randomOffset) // Fetch one random idea by using range
         .limit(1);
-  
+
       if (error) {
         console.error("Error fetching idea:", error);
         setIdea("Something went wrong!");
@@ -51,11 +53,11 @@ export default function DateGenerator() {
         setIdea("No ideas found for this mood.");
       }
     }
-  
+
     setLoading(false); // End loading spinner
     setIsGenerating(true); // Set generating to true to show Try Again button
   };
-  
+
   const tryAgain = async () => {
     // Reset the current idea and fetch a new one
     setIdea("");
@@ -76,25 +78,38 @@ export default function DateGenerator() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <LinearGradient
+      colors={["#E9919B", "#F8C4CC"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.container}
+    >
       <TouchableOpacity style={styles.backButton} onPress={handleback}>
-        <Text style={styles.backButtonText}>🔙 Back</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <AntDesign name="arrowleft" size={24} color="white" />
+          <Text style={styles.backButtonText}>Love Calc</Text>
+        </View>
       </TouchableOpacity>
-      <Text style={styles.header}>Perfect Date Generator 📆</Text>
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+ <Image
+        style={styles.bottomImage}
+        source={require("../../assets/images/dateidea.svg")}
+      />
 
-      <TouchableOpacity
-        style={[styles.input, styles.dateInput]}
-        onPress={() => setShowPicker(true)}
-      >
-        <Ionicons
-          name="calendar-outline"
-          size={20}
-          color="#666"
-          style={{ marginRight: 8 }}
-        />
-        <Text style={styles.dateText}>
-          {`Selected Date: ${date.toLocaleDateString()}`}
-        </Text>
+
+      <TouchableOpacity onPress={() => setShowPicker(true)}>
+        <View style={styles.progressContainer}>
+          <Image
+            style={styles.icon}
+            source={require("../../assets/icons/ic_input.svg")}
+          />
+
+          <View style={styles.progressBarBackground}>
+            <Text
+              style={styles.percentageText}
+            >{`${date.toLocaleDateString()}`}</Text>
+          </View>
+        </View>
       </TouchableOpacity>
 
       {showPicker && (
@@ -107,7 +122,7 @@ export default function DateGenerator() {
         />
       )}
 
-      <Text style={styles.moodLabel}>Select Mood:</Text>
+ 
       <View style={styles.moodContainer}>
         {moods.map((m) => (
           <TouchableOpacity
@@ -124,33 +139,48 @@ export default function DateGenerator() {
         ))}
       </View>
       {!isGenerating && (
-        <TouchableOpacity
-          onPress={fetchIdea}
-          style={[
-            styles.generateButton,
-            (!date || !mood) && styles.disabledButton, // Disable button if no date or mood is selected
-          ]}
-          disabled={!date || !mood || loading} // Disable the button if either date or mood isn't selected or if loading
-        >
-          <Text style={styles.generateButtonText}>
-            {loading ? "Loading..." : "Generate Date Idea"}
-          </Text>
-        </TouchableOpacity>
+        <TouchableOpacity onPress={fetchIdea}>
+                    <LinearGradient
+                      colors={["#F16886", "#FFCFBA"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={styles.askButton}
+                    >
+                      <Text style={styles.ButtonText}>Get your Date</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+        
       )}
 
       {isGenerating && (
-        <TouchableOpacity onPress={tryAgain} style={styles.tryAgainButton}>
-          <Text style={styles.tryAgainText}>Try Again</Text>
-        </TouchableOpacity>
+        <TouchableOpacity onPress={tryAgain}>
+        <LinearGradient
+          colors={["#F16886", "#FFCFBA"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.askButton}
+        >
+          <Text style={styles.ButtonText}>Try Again</Text>
+        </LinearGradient>
+      </TouchableOpacity>
+        
+      )}
+      {loading &&(
+        <LottieView
+        source={loadingAnim}
+        autoPlay
+        loop
+        style={{ width: 150, height: 150 }}
+      />
       )}
 
       {idea !== "" && (
         <View style={styles.ideaContainer}>
-          <Text style={styles.ideaHeader}>Idea:</Text>
           <Text style={styles.ideaText}>{idea}</Text>
         </View>
       )}
-    </ScrollView>
+      </View>
+    </LinearGradient>
   );
 }
 
@@ -161,6 +191,79 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
   },
+  bottomImage: {
+    width: 250,
+    height: 200,
+    alignSelf: "center",
+    marginTop: 20,
+    borderRadius:30,
+  },
+  percentageText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
+    paddingLeft: 30,
+    marginTop: 4,
+  },
+  askButton: {
+    width: 248,
+    padding: 10,
+    backgroundColor: "#3498db",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    alignItems: "center",
+  },
+  ButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  progressContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "80%",
+    marginVertical: 20,
+  },
+  icon: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+    marginRight: -30, // space between icon and bar
+    zIndex: 2,
+  },
+  progressBarBackground: {
+    width: "80%",
+    height: 40,
+    backgroundColor: "#fff",
+    borderRadius: 30,
+    overflow: "hidden",
+    marginVertical: 20,
+    borderWidth: 3,
+    borderColor: "#F16886",
+  },
+  percentageBadgeWrapper: {
+    position: "relative",
+    width: 100,
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+
+  percentageBadgeImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+
+  percentageInBadge: {
+    position: "absolute",
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+
   input: {
     borderWidth: 1,
     borderColor: "#ddd",
@@ -198,18 +301,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   moodButton: {
-    backgroundColor: "#E0E0E0",
+    backgroundColor: "#B59FA4",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 30,
     margin: 5,
   },
   selectedMood: {
-    backgroundColor: "#4C8BF5",
+    backgroundColor: "#F16886",
   },
   moodText: {
+    fontFamily:'k2dLight',
     fontSize: 14,
-    color: "#333",
+    color: "#fff",
   },
   selectedMoodText: {
     color: "#fff",
@@ -242,10 +346,19 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   ideaContainer: {
-    backgroundColor: "#FFEB3B",
-    padding: 20,
-    borderRadius: 8,
-    marginTop: 20,
+    marginTop:20,
+      backgroundColor: "#FFF",
+      padding: 20,
+      borderRadius: 16,
+      shadowColor: "#000",
+      shadowOpacity: 0.1,
+      shadowRadius: 10,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 4,
+      marginBottom: 20,
+      maxWidth: "100%",
+      alignItems: "center",
+
   },
   ideaHeader: {
     fontSize: 18,
@@ -255,17 +368,20 @@ const styles = StyleSheet.create({
   },
   ideaText: {
     fontSize: 16,
+    fontFamily:'k2dMedium',
     textAlign: "center",
     color: "#333",
   },
   backButton: {
     position: "absolute",
-    top: 50,
+    top: 30,
     left: 20,
   },
   backButtonText: {
-    color: "#444",
-    fontSize: 16,
+    marginLeft: 10,
+    color: "#fff",
+    fontFamily: "k2dMedium",
+    fontSize: 20,
     textAlign: "center",
   },
 });

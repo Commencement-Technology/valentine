@@ -7,27 +7,27 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import * as Speech from "expo-speech";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
 
 const SmileGiver = () => {
   const [setup, setSetup] = useState("");
   const [delivery, setDelivery] = useState("");
   const [loading, setLoading] = useState(false);
   const [speaking, setSpeaking] = useState(false);
-  const [laughText, setLaughText] = useState("");
- const router=useRouter();
-  const handleback =()=>{
+  
+  const router = useRouter();
+  const handleback = () => {
     setSetup("");
     setDelivery("");
-    setLaughText("");
     router.back();
- }
+  };
   const getJoke = async () => {
     setLoading(true);
-    setLaughText("");
     setSetup("");
     setDelivery("");
     try {
@@ -50,8 +50,6 @@ const SmileGiver = () => {
   const playJoke = () => {
     if (setup || delivery) {
       setSpeaking(true);
-      setLaughText("");
-
       const endings = [
         "hehehe",
         "gotcha!",
@@ -62,7 +60,7 @@ const SmileGiver = () => {
       ];
 
       const randomEnding = endings[Math.floor(Math.random() * endings.length)];
-      
+
       const fullJoke = `${setup}... ${delivery}... ${randomEnding}`;
 
       Speech.speak(fullJoke, {
@@ -71,29 +69,61 @@ const SmileGiver = () => {
         rate: 1.0,
         onDone: () => {
           setSpeaking(false);
-          setLaughText(randomEnding);
         },
         onStopped: () => setSpeaking(false),
         onError: () => setSpeaking(false),
-        
       });
-      
     } else {
       Alert.alert("No Joke", "Please fetch a joke first!");
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>😂 Smile Giver</Text>
-
-      <TouchableOpacity style={styles.askButton} onPress={getJoke}>
-        {loading ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : (
-          <Text style={styles.askButtonText}>Tell Me a Joke</Text>
-        )}
+    <LinearGradient
+      colors={["#7ACBC9", "#BDE0F7"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.container}
+    >
+      <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',gap:20}}>
+        <TouchableOpacity onPress={getJoke}>
+        <LinearGradient
+          colors={["#F16886", "#FFCFBA"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }} // Horizontal gradient (90deg)
+          style={styles.askButton}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : setup || delivery ? (
+            <Text style={styles.askButtonText}>Tell Me another Joke</Text>
+          ) : (
+            <Text style={styles.askButtonText}>Tell Me a Joke</Text>
+          )}
+        </LinearGradient>
       </TouchableOpacity>
+      {setup && delivery && (
+        <TouchableOpacity
+          onPress={playJoke}
+          disabled={speaking}
+          style={styles.speakerButton}
+          activeOpacity={0.7}
+        >
+          {speaking ? (
+            <ActivityIndicator size={28} color="#3498db" />
+          ) : (
+            <View
+              style={{
+                flexDirection: "row",
+              }}
+            >
+              <Ionicons name="volume-high-outline" size={28} color="#3498db" />
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
+      </View>
+      
 
       {(setup || delivery) && (
         <View style={styles.chatContainer}>
@@ -116,41 +146,25 @@ const SmileGiver = () => {
         </View>
       )}
 
-      {setup && delivery && (
-        <TouchableOpacity
-          onPress={playJoke}
-          disabled={speaking}
-          style={styles.speakerButton}
-          activeOpacity={0.7}
-        >
-          {speaking ? (
-            <ActivityIndicator size={28} color="#3498db" />
-          ) : (
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                alignContent: "center",
-                gap: 10,
-              }}
-            >
-              <Ionicons name="volume-high-outline" size={28} color="#3498db" />
-              <Text style={styles.speakerLabel}>Listen</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      )}
-      {laughText !== "" && <Text style={styles.laughText}>{laughText}</Text>}
+      
+  
 
       {!setup && !delivery && !loading && (
         <Text style={styles.placeholderText}>
           Your joke will appear here...
         </Text>
       )}
+      <Image
+        style={styles.image}
+        source={require("../../assets/images/joke.svg")}
+      />
       <TouchableOpacity style={styles.backButton} onPress={handleback}>
-        <Text style={styles.backButtonText}>🔙 Back</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <AntDesign name="arrowleft" size={24} color="white" />
+          <Text style={styles.backButtonText}>LoveGiggles</Text>
+        </View>
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -170,19 +184,27 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     transform: [{ rotate: "-2deg" }],
   },
-
+  image: {
+    position: "absolute",
+    bottom: 60,
+    width: 300,
+    height: 210,
+    marginRight: 8,
+  },
+ 
   backButton: {
     position: "absolute",
-    top: 50,
+    top: 30,
     left: 20,
   },
   backButtonText: {
-    color: "#444",
-    fontSize: 16,
+    marginLeft: 10,
+    color: "#fff",
+    fontFamily: "k2dMedium",
+    fontSize: 20,
     textAlign: "center",
   },
   speakerButton: {
-    marginTop: 20,
     backgroundColor: "#ffffff",
     borderRadius: 50,
     padding: 14,
@@ -195,23 +217,17 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: "#f7f7f7",
     alignItems: "center",
-    padding: 20,
     justifyContent: "center",
   },
-  header: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 30,
-    color: "#2C3E50",
-  },
+  
   askButton: {
+    width: 248,
+    padding: 10,
     backgroundColor: "#3498db",
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 8,
-    width: "100%",
+    borderRadius: 30,
     alignItems: "center",
   },
   askButtonText: {
@@ -254,6 +270,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 0,
   },
   messageText: {
+    fontFamily:'k2dMedium',
     fontSize: 16,
     color: "#2C3E50",
   },
@@ -264,7 +281,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
     fontSize: 16,
     color: "#7f8c8d",
-    fontStyle: "italic",
+    fontFamily:'k2dMedium',
     textAlign: "center",
   },
 });

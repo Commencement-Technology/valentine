@@ -11,7 +11,9 @@ import { useFocusEffect, useRouter } from "expo-router";
 import axios from "axios";
 import * as Clipboard from "expo-clipboard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Feather } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
 
 const PickupLineScreen = () => {
   const [pickupLine, setPickupLine] = useState("");
@@ -94,8 +96,32 @@ const PickupLineScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>💘 Love Pickup Line 💘</Text>
+    <LinearGradient
+      colors={["#8DABF1", "#D9E4FD"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.container}
+    >
+      <TouchableOpacity style={styles.backButton} onPress={handleback}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <AntDesign name="arrowleft" size={24} color="white" />
+          <Text style={styles.backButtonText}>Love Line</Text>
+        </View>
+      </TouchableOpacity>
+      {favorites.length > 0 || save ? (
+        <TouchableOpacity
+          style={styles.rightbackButton}
+          onPress={() => router.push("/Favourites")}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Image
+              source={require("../../assets/icons/ic_heart.svg")}
+              style={styles.loveIcon}
+            />
+            <Text style={styles.rightbackButtonText}>Show Favouries</Text>
+          </View>
+        </TouchableOpacity>
+      ) : null}
 
       {loading ? (
         <LottieView
@@ -133,23 +159,22 @@ const PickupLineScreen = () => {
           </Animated.View>
         )
       )}
-
-      <TouchableOpacity style={styles.button} onPress={fetchPickupLine}>
-        <Text style={styles.buttonText}>Get Pickup Line 💌</Text>
-      </TouchableOpacity>
-      {favorites.length > 0 || save ? (
-        <TouchableOpacity
-          style={[styles.button, { marginTop: 20 }]}
-          onPress={() => router.push("/Favourites")}
+      <TouchableOpacity onPress={fetchPickupLine}>
+        <LinearGradient
+          colors={["#F16886", "#FFCFBA"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.askButton}
         >
-          <Text style={styles.buttonText}>Show the Favouries💌</Text>
-        </TouchableOpacity>
-      ) : null}
-
-      <TouchableOpacity onPress={handleback} style={styles.backButton}>
-        <Text style={styles.backButtonText}>🔙 Back</Text>
+          <Text style={styles.ButtonText}>Get your Pick Line</Text>
+        </LinearGradient>
       </TouchableOpacity>
-    </View>
+
+      <Image
+        style={styles.bottomImage}
+        source={require("../../assets/images/pickline.svg")}
+      />
+    </LinearGradient>
   );
 };
 
@@ -163,13 +188,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 30,
-    color: "#FF4E4E",
-    textAlign: "center",
-    fontFamily: "NunitoSans-Bold",
+  loveIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: "contain",
+  },
+  bottomImage: {
+    width: 250,
+    height: 200,
+    alignSelf: "center",
+    marginTop: 20,
+    borderRadius: 30,
   },
   card: {
     backgroundColor: "#FFF",
@@ -211,27 +240,43 @@ const styles = StyleSheet.create({
     color: "#0BFDA6",
     fontWeight: "600",
   },
-  button: {
-    backgroundColor: "#FF7755",
-    paddingVertical: 15,
-    paddingHorizontal: 30,
+  askButton: {
+    width: 248,
+    padding: 10,
+    backgroundColor: "#3498db",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     borderRadius: 30,
-    elevation: 5,
+    alignItems: "center",
   },
-  buttonText: {
-    fontSize: 18,
+  ButtonText: {
     color: "#fff",
+    fontSize: 18,
     fontWeight: "bold",
-    letterSpacing: 0.5,
-    fontFamily: "NunitoSans-SemiBold",
+  },
+  rightbackButtonText: {
+    marginLeft: 10,
+    color: "#fff",
+    fontFamily: "k2dMedium",
+    fontSize: 16,
+    textAlign: "center",
   },
   backButton: {
     position: "absolute",
-    top: 50,
+    top: 30,
     left: 20,
   },
+  rightbackButton: {
+    position: "absolute",
+    top: 30,
+    right: 20,
+    marginTop: 10,
+  },
   backButtonText: {
-    fontSize: 16,
-    color: "#777",
+    marginLeft: 10,
+    color: "#fff",
+    fontFamily: "k2dMedium",
+    fontSize: 20,
+    textAlign: "center",
   },
 });

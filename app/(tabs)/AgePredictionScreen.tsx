@@ -74,8 +74,9 @@ const AgePredictionScreen: React.FC = () => {
             is <Text style={styles.highlight}>{predictedAge}</Text> years old.
           </Text>
           <Text style={styles.result}>
-            The predicted gender for <Text style={styles.highlight}>{name}</Text>{" "}
-            is <Text style={styles.highlight}>{predictedGender}</Text>.
+            The predicted gender for{" "}
+            <Text style={styles.highlight}>{name}</Text> is{" "}
+            <Text style={styles.highlight}>{predictedGender}</Text>.
           </Text>
         </View>
       )}

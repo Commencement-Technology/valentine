@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Animated,
+  Easing,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -19,6 +21,9 @@ import animation51to66 from "../../assets/animation/friends.json";
 import animation67to83 from "../../assets/animation/love.json";
 import animation84to100 from "../../assets/animation/love.json";
 import { useRouter } from "expo-router";
+import { AntDesign } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
 
 const LoveCheckerScreen = () => {
   const router = useRouter();
@@ -27,10 +32,27 @@ const LoveCheckerScreen = () => {
   const [loading, setLoading] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [percentage, setPercentage] = useState(0);
-  const [animationSource, setAnimationSource] = useState(animation84to100);
   const [name1Error, setName1Error] = useState("");
   const [name2Error, setName2Error] = useState("");
-  const nameRegex = /^[A-Za-z]{3,15}$/;
+  const nameRegex = /^[A-Za-z\s'-]{2,50}$/;
+
+  const loadingAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (loading) {
+      loadingAnim.setValue(0);
+      Animated.loop(
+        Animated.timing(loadingAnim, {
+          toValue: 100,
+          duration: 2000,
+          easing: Easing.linear,
+          useNativeDriver: false,
+        })
+      ).start();
+    } else {
+      loadingAnim.stopAnimation();
+    }
+  }, [loading]);
 
   const handleSubmit = () => {
     // Trim inputs to catch empty whitespace entries
@@ -73,20 +95,22 @@ const LoveCheckerScreen = () => {
     const percent = calculateLovePercentage(trimmedName1, trimmedName2);
     setPercentage(percent);
 
-    // Set appropriate animation based on percentage
-    if (percent <= 16) setAnimationSource(animation0to16 as any);
-    else if (percent <= 33) setAnimationSource(animation17to33 as any);
-    else if (percent <= 50) setAnimationSource(animation34to50 as any);
-    else if (percent <= 66) setAnimationSource(animation51to66 as any);
-    else if (percent <= 83) setAnimationSource(animation67to83 as any);
-    else setAnimationSource(animation84to100 as any);
 
     setTimeout(() => {
       setLoading(false);
     }, 3000);
   };
 
+  const handleback = () => {
+    setPercentage(0);
+    setName1("");
+    setName2("");
+    setShowResult(false);
+    setLoading(false);
+    router.back();
+  };
   const handleReset = () => {
+    setPercentage(0);
     setName1("");
     setName2("");
     setShowResult(false);
@@ -131,157 +155,310 @@ const LoveCheckerScreen = () => {
     return parseInt(current.join(""));
   };
 
-  if (showResult) {
-    return (
-      <View style={styles.container}>
-        {loading ? (
-          <>
-          <View style={{justifyContent:'center',alignItems:'center'}}>
-          <LottieView
-              source={loadingAnim}
-              autoPlay
-              loop
-              style={{ width: 200, height: 200 }}
-            />
-            <Text style={styles.loadingText}>Calculating your Love... 🔮</Text>
-          </View>
-           
-          </>
-        ) : (
-          <>
-          
-          <View style={{justifyContent:'center',alignItems:'center'}}>
-            <Text style={styles.title}>💘 Love Compatibility 💘</Text>
-            <Text style={styles.names}>
-              {name1} ❤️ {name2}
-            </Text>
-            <Text style={styles.percentage}>{percentage}%</Text>
-            <LottieView
-              source={animationSource}
-              autoPlay
-              loop
-              style={styles.animation}
-            />
-           
-          </View>
-           <TouchableOpacity style={styles.backButton} onPress={handleReset}>
-           <Text style={styles.backButtonText}>🔙 Back</Text>
-         </TouchableOpacity>
-         </>
-        )}
-      </View>
-    );
-  }
-
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <LinearGradient
+      colors={["#FF9492", "#FFD1BB"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
       style={styles.container}
     >
-      <Text style={styles.title}>🔥 Love Calculator 🔥</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your name"
-        value={name1}
-        onChangeText={(text) => {
-          setName1(text);
-          if (name1Error) setName1Error(""); // clear error while typing
-        }}
+      <TouchableOpacity style={styles.backButton} onPress={handleback}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <AntDesign name="arrowleft" size={24} color="white" />
+          <Text style={styles.backButtonText}>Love Calc</Text>
+        </View>
+      </TouchableOpacity>
+      <Image
+        style={styles.bottomImage}
+        source={require("../../assets/images/Calc.svg")}
       />
-      {name1Error ? <Text style={styles.errorText}>{name1Error}</Text> : null}
+      {percentage ? (
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <View style={styles.namesWrapper}>
+            <Text style={styles.namesText}>{name1}</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Enter crush's name"
-        value={name2}
-        onChangeText={(text) => {
-          setName2(text);
-          if (name2Error) setName2Error(""); // clear error while typing
-        }}
-      />
-      {name2Error ? <Text style={styles.errorText}>{name2Error}</Text> : null}
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Let's Calculate💘</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backButtonText}>🔙 Back</Text>
-      </TouchableOpacity>
-    </KeyboardAvoidingView>
+            <Image
+              source={require("../../assets/icons/ic_heart.svg")} // your custom SVG
+              style={styles.loveIcon}
+            />
+
+            <Text style={styles.namesText}>{name2}</Text>
+          </View>
+
+          <View style={styles.progressContainer}>
+            <Image
+              style={styles.icon}
+              source={require("../../assets/icons/ic_input.svg")}
+            />
+
+            <View style={styles.progressBarBackground}>
+              {loading ? (
+                <Animated.View
+                  style={[
+                    styles.progressBarFill,
+                    {
+                      width: loadingAnim.interpolate({
+                        inputRange: [0, 100],
+                        outputRange: ["0%", "100%"],
+                      }),
+                    },
+                  ]}
+                />
+              ) : (
+                <View
+                  style={[styles.progressBarFill, { width: `${percentage}%` }]}
+                />
+              )}
+            </View>
+          </View>
+          {!loading && (
+            <View style={styles.percentageBadgeWrapper}>
+              <Image
+                source={require("../../assets/icons/ic_per.svg")}
+                style={styles.percentageBadgeImage}
+              />
+              <Text style={styles.percentageInBadge}>{percentage}%</Text>
+            </View>
+          )}
+
+          <TouchableOpacity onPress={handleReset}>
+            <LinearGradient
+              colors={["#F16886", "#FFCFBA"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.askButton}
+            >
+              <Text style={styles.ButtonText}>Try with New Names</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={{ width: "100%", alignItems: "center" }}>
+          <View style={styles.progressInputContainer}>
+            <Image
+              style={styles.icon}
+              source={require("../../assets/icons/ic_input.svg")}
+            />
+
+            <View style={styles.progressBarInputBackground}>
+              <TextInput
+                style={styles.progressInput}
+                placeholder="your name"
+                placeholderTextColor="#999"
+                value={name1}
+                onChangeText={(text) => {
+                  setName1(text);
+                  if (name1Error) setName1Error(""); // clear error while typing
+                }}
+              />
+            </View>
+          </View>
+
+          {name1Error ? (
+            <Text style={styles.errorText}>{name1Error}</Text>
+          ) : null}
+          
+          <View style={styles.progressInputContainer}>
+            <Image
+              style={styles.icon}
+              source={require("../../assets/icons/ic_input.svg")}
+            />
+
+            <View style={styles.progressBarInputBackground}>
+              <TextInput
+                style={styles.progressInput}
+                placeholder="your Crush name"
+                placeholderTextColor="#999"
+                value={name2}
+                onChangeText={(text) => {
+                  setName2(text);
+                  if (name1Error) setName2Error(""); // clear error while typing
+                }}
+              />
+            </View>
+          </View>
+          {name2Error ? (
+            <Text style={styles.errorText}>{name2Error}</Text>
+          ) : null}
+          <TouchableOpacity onPress={handleSubmit}>
+            <LinearGradient
+              colors={["#F16886", "#FFCFBA"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.askButton}
+            >
+              <Text style={styles.ButtonText}>Submit</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      )}
+    </LinearGradient>
   );
 };
 
 export default LoveCheckerScreen;
 
 const styles = StyleSheet.create({
+  progressInput: {
+    width: "100%",
+    height: "100%",
+    color: "#000",
+    paddingLeft: 30,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  progressInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+    paddingHorizontal: 16,
+    width: "100%",
+  },
+
+  progressBarInputBackground: {
+    flex: 1,
+    height: 45,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    borderWidth: 3,
+    borderColor: "#F16886",
+  },
+
+  namesWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 12,
+  },
+  bottomImage: {
+    width: 250,
+    height: 200,
+    alignSelf: "center",
+    marginTop: 20,
+  },
+
+  namesText: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "white",
+    marginHorizontal: 6,
+  },
+
+  loveIcon: {
+    width: 32,
+    height: 32,
+    resizeMode: "contain",
+  },
+
+  percentageBadgeWrapper: {
+    position: "relative",
+    width: 100,
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+
+  percentageBadgeImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+
+  percentageInBadge: {
+    position: "absolute",
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+
+  icon: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+    marginRight: -30, // space between icon and bar
+    zIndex: 2,
+  },
+  percentageText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginTop: 10,
+  },
+
+  progressContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "80%",
+    marginVertical: 20,
+  },
+  progressBarWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+    width: "80%",
+  },
+  progressBarBackground: {
+    width: "80%",
+    height: 40,
+    backgroundColor: "#fff",
+    borderRadius: 30,
+    overflow: "hidden",
+    marginVertical: 20,
+    borderWidth: 3,
+    borderColor: "#F16886",
+  },
+
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: "#17BB84", // you can change this to any color you like
+    borderRadius: 30,
+  },
+  askButton: {
+    width: 248,
+    padding: 10,
+    backgroundColor: "#3498db",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    alignItems: "center",
+  },
+  ButtonText: {
+    color: "#fff",
+    fontFamily:'k2dMedium',
+    fontSize: 18,
+    fontWeight: "bold",
+  },
   container: {
     flex: 1,
+    height: "100%",
     justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 20,
-    // alignItems: "center",
-    backgroundColor: "#fff",
   },
   errorText: {
     color: "red",
-    marginBottom: 8,
-    marginLeft: 4,
-    fontSize: 14,
-  },
-  title: {
-    fontSize: 26,
-    textAlign: "center",
-    marginBottom: 20,
-    fontWeight: "bold",
-    color: "#FF7755",
-  },
-  input: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 12,
-    padding: 15,
-    marginVertical: 10,
-    fontSize: 18,
-  },
-  button: {
-    backgroundColor: "#FF7755",
-    padding: 15,
-    borderRadius: 12,
-    marginTop: 20,
-    width: "100%",
-    alignItems: "center",
-  },
-  buttonText: {
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  names: {
-    fontSize: 20,
-    marginBottom: 10,
-  },
+    fontFamily: "k2dLight",
+    fontSize: 12,
+    lineHeight:12,
+  }, 
   percentage: {
     fontSize: 64,
     fontWeight: "bold",
     color: "#7E8EFF",
   },
-  animation: {
-    width: 200,
-    height: 200,
-    marginTop: 40,
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 18,
-    color: "#444",
-  },
+
   backButton: {
     position: "absolute",
-    top: 50,
+    top: 30,
     left: 20,
   },
   backButtonText: {
-    color: "#444",
-    fontSize: 16,
+    marginLeft: 10,
+    color: "#fff",
+    fontFamily: "k2dMedium",
+    fontSize: 20,
     textAlign: "center",
   },
 });

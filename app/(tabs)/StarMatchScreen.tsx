@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
-import axios from "axios";
 import { useRouter } from "expo-router";
 
 // Interface for compatibility result
