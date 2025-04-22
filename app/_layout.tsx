@@ -14,7 +14,6 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     k2dBold: require('../assets/fonts/K2D-Bold.ttf'),
     k2dLight: require('../assets/fonts/K2D-Light.ttf'),
     k2dMedium: require('../assets/fonts/K2D-Medium.ttf'),
