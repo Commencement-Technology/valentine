@@ -35,7 +35,6 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="Favourites" />
         <Stack.Screen name="LoginScreen" />
-        <Stack.Screen name="FeedbackScreen" />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
