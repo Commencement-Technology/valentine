@@ -9,8 +9,9 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
    npm install
    ```
-
-2. Start the app
+2.Create a .env file
+Copy the .env.example file (if available) or create a new .env file in the root directory and replace the placeholder values with your own configuration.
+3. Start the app
 
    ```bash
     npx expo start
